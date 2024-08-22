@@ -1,0 +1,8 @@
+services:
+  app_go:
+    build: .
+    container_name: app_go
+    ports:
+      - "9000:9000"
+    volumes:
+      - .:/go/src/
