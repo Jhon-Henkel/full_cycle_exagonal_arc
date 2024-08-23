@@ -16,9 +16,58 @@ func TestProductService_Get(t *testing.T) {
 	persistence := mockapp.NewMockIProductReader(ctrl)
 	persistence.EXPECT().Get(gomock.Any()).Return(product, nil).AnyTimes()
 
-	service := application.ProductService{Persistence: application.IProductPersistent{persistence, nil}}
+	service := application.ProductService{Persistence: application.IProductPersistent{IProductReader: persistence}}
 
 	result, err := service.Get("1")
+	assert.Nil(t, err)
+	assert.Equal(t, product, result)
+}
+
+func TestProductService_Create(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	product := mockapp.NewMockIProduct(ctrl)
+	persistence := mockapp.NewMockIProductWriter(ctrl)
+	persistence.EXPECT().Save(gomock.Any()).Return(product, nil).AnyTimes()
+
+	service := application.ProductService{Persistence: application.IProductPersistent{IProductWriter: persistence}}
+
+	result, err := service.Create("Product 1", 10)
+	assert.Nil(t, err)
+	assert.Equal(t, product, result)
+}
+
+func TestProductService_Enable(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	product := mockapp.NewMockIProduct(ctrl)
+	product.EXPECT().Enable().Return(nil).AnyTimes()
+
+	persistence := mockapp.NewMockIProductWriter(ctrl)
+	persistence.EXPECT().Save(gomock.Any()).Return(product, nil).AnyTimes()
+
+	service := application.ProductService{Persistence: application.IProductPersistent{IProductWriter: persistence}}
+
+	result, err := service.Enable(product)
+	assert.Nil(t, err)
+	assert.Equal(t, product, result)
+}
+
+func TestProductService_Disable(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	product := mockapp.NewMockIProduct(ctrl)
+	product.EXPECT().Disable().Return(nil).AnyTimes()
+
+	persistence := mockapp.NewMockIProductWriter(ctrl)
+	persistence.EXPECT().Save(gomock.Any()).Return(product, nil).AnyTimes()
+
+	service := application.ProductService{Persistence: application.IProductPersistent{IProductWriter: persistence}}
+
+	result, err := service.Disable(product)
 	assert.Nil(t, err)
 	assert.Equal(t, product, result)
 }
