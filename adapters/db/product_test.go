@@ -2,7 +2,10 @@ package db_test
 
 import (
 	"database/sql"
+	"github.com/Jhon-Henkel/full_cycle_hexagonal_arc/adapters/db"
+	"github.com/stretchr/testify/require"
 	"log"
+	"testing"
 )
 
 var DB *sql.DB
@@ -29,4 +32,17 @@ func createProduct(db *sql.DB) {
 		log.Fatal(err.Error())
 	}
 	stmt.Exec()
+}
+
+func TestProductDB_Get(t *testing.T) {
+	setup()
+	defer DB.Close()
+
+	productDB := db.NewProductDB(DB)
+	product, err := productDB.Get("abc")
+
+	require.Nil(t, err)
+	require.Equal(t, "Product Test", product.GetName())
+	require.Equal(t, 0.0, product.GetPrice())
+	require.Equal(t, "disabled", product.GetStatus())
 }
