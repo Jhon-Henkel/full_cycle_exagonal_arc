@@ -3,6 +3,7 @@ package db_test
 import (
 	"database/sql"
 	"github.com/Jhon-Henkel/full_cycle_hexagonal_arc/adapters/db"
+	"github.com/Jhon-Henkel/full_cycle_hexagonal_arc/application"
 	"github.com/stretchr/testify/require"
 	"log"
 	"testing"
@@ -45,4 +46,35 @@ func TestProductDB_Get(t *testing.T) {
 	require.Equal(t, "Product Test", product.GetName())
 	require.Equal(t, 0.0, product.GetPrice())
 	require.Equal(t, "disabled", product.GetStatus())
+}
+
+func TestProductDB_Save(t *testing.T) {
+	setup()
+	defer DB.Close()
+
+	productDB := db.NewProductDB(DB)
+
+	product := application.NewProduct()
+	product.Name = "Product Test"
+	product.Price = 25
+
+	productResult, err := productDB.Save(product)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	require.Equal(t, product.GetName(), productResult.GetName())
+	require.Equal(t, product.GetPrice(), productResult.GetPrice())
+	require.Equal(t, product.GetStatus(), productResult.GetStatus())
+
+	product.Status = "enabled"
+
+	productResult, err = productDB.Save(product)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	require.Equal(t, product.GetName(), productResult.GetName())
+	require.Equal(t, product.GetPrice(), productResult.GetPrice())
+	require.Equal(t, product.GetStatus(), productResult.GetStatus())
 }
