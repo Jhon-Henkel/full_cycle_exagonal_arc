@@ -11,7 +11,7 @@ type ProductDB struct {
 }
 
 func NewProductDB(db *sql.DB) *ProductDB {
-	return &ProductDB{db}
+	return &ProductDB{db: db}
 }
 
 func (p *ProductDB) Get(id string) (application.IProduct, error) {

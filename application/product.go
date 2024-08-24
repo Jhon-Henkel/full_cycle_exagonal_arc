@@ -35,7 +35,7 @@ type IProductWriter interface {
 	Save(product IProduct) (IProduct, error)
 }
 
-type IProductPersistent struct {
+type IProductPersistent interface {
 	IProductReader
 	IProductWriter
 }
