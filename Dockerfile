@@ -18,3 +18,6 @@ RUN chown -R www-data:www-data /var/www/.cache
 USER www-data
 
 CMD ["tail", "-f", "/dev/null"]
+
+# Run cobra comands on the container
+#  ../bin/cobra-cli [flags]
