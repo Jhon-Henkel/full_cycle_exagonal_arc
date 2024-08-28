@@ -10,6 +10,12 @@ import (
 )
 
 func MakeProductHandlers(router *mux.Router, middleware *negroni.Negroni, service application.IProductService) {
+	router.Handle("/product/{id}/enable", middleware.With(
+		negroni.Wrap(enableProduct(service))),
+	).Methods("GET", "OPTIONS")
+	router.Handle("/product/{id}/disable", middleware.With(
+		negroni.Wrap(disableProduct(service))),
+	).Methods("GET", "OPTIONS")
 	router.Handle("/product/{id}", middleware.With(
 		negroni.Wrap(getProduct(service))),
 	).Methods("GET", "OPTIONS")
@@ -56,6 +62,54 @@ func createProduct(service application.IProductService) http.Handler {
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write(JsonError(err.Error()))
+			return
+		}
+	})
+}
+
+func enableProduct(service application.IProductService) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		vars := mux.Vars(r)
+		id := vars["id"]
+		product, err := service.Get(id)
+		if err != nil {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+		result, err := service.Enable(product)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write(JsonError(err.Error()))
+			return
+		}
+		err = json.NewEncoder(w).Encode(result)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	})
+}
+
+func disableProduct(service application.IProductService) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		vars := mux.Vars(r)
+		id := vars["id"]
+		product, err := service.Get(id)
+		if err != nil {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+		result, err := service.Disable(product)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write(JsonError(err.Error()))
+			return
+		}
+		err = json.NewEncoder(w).Encode(result)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 	})
